@@ -1,0 +1,46 @@
+rever slide do tema, forma de fala. nao falar com tom de objetivo.
+este trabalho está dentro do contexto com os estudos relacionados a detecção de estados seguros em computação distribuída
+
+não falar o título do slide.
+
+incluir objetivo geral, falar sobre ele.
+comentário muito rápido sobre os específicos
+
+justificavia: A integração e identificação de técnicas de estados seguros no DCB é desejável pois...
+
+
+simplificar conceitos de simulação
+não inventar coisas.
+
+o ato de encher o copo não precisa consumir processamento, basta saber o tempo de início e fim de do evento 
+
+
+falar sobre síncrono e especificar que o trabalho está no âmbito no modo Assíncrono
+
+não falar sobre checkpoint no slide 8
+slide 8: situações que o envio de mensagens pode gerar
+~linkar~ os slides 8 e 9
+
+slide 9: então, para resolver os problemas dos estados inconsistentes no modo assíncrono, pode-se utilizar checkpoints..
+
+slide 10: explicar melhor efeito dominó e quais checkpoints inuteis de forma muito clara!
+
+slide 11: mais básico
+
+slide 12: mais simples HLA
+	  desenvolvido pelo exercito americano para cenários de guerra
+	   Os elementos ou federados tem que ser desenvolvidos de acordo com uma RTI específica e fazem chamada a 
+operações remotas da RTI.
+	   Diferentes RTIs podem ser incompatíveis.
+
+o dcb trabalha diferente tentando tornar o elemento totalmente independente, através do gateway..
+elemento-gateway
+gateway-backbone
+backbone fazem o gerenciamento do tempo, envio e recebimento de mensagens, tradução de interface caso necessário, conseguindo
+tratar modelos heterogêneos de forma mais eficaz.
+
+dcb não identifica estados seguros
+
+
+Metodologia:
+dcb tem uma característica específica sobre gerenciamento do tempo, configuração do modelo, tradução de interface com elemento
