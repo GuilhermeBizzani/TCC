@@ -21,6 +21,9 @@ public class ApplicationDCB extends Thread // classe principal --> instancia obj
     public String FederateType;		  // Tipo do federado (sincrono/assincrono)
     public String Config;
     public DCBMThread PointerMT;
+    
+    public int CkpIndex;
+    
     //public int gatewayVal;  //* gatewayVal agora eh o numero do federado
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +35,8 @@ public class ApplicationDCB extends Thread // classe principal --> instancia obj
     /////////////////////////////////////////////////////////////////////////////////////
     public ApplicationDCB(DCBMThread p, int gatewayVal, String cfg) throws IOException // construtor
     {
+    	CkpIndex = 0;
+    	
         PointerMT = p;
         Config = cfg;
 

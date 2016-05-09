@@ -51,7 +51,7 @@ public class EDCB {
     // envia mensagem nula com um valor qualquer de timestamp, e LVT atual...
     }
 
-    public void UpdateAsync(String Attribute, String Value, String timestamp) {
+    public void UpdateAsync(String Attribute, String Value, String timestamp) { //VERIFICAR AQUI O >= getGVT, pode ser aqui o que nunca gera rollback
         if ((Integer.parseInt(timestamp) >= Integer.parseInt(App.NewDCB.getGVT())) && (Attribute.split("\\.")[0].compareTo("444") != 0)) {
             System.out.println("Attribute: " + Attribute + "Value: " + Value + " Timestamp: " + timestamp);
             Update1(Attribute, Value, timestamp);
@@ -181,6 +181,17 @@ public class EDCB {
             NewOutput = getFirstRequest();
 
             if (NewOutput != null) {
+            	
+            	
+            	/*if(NewOutput.Value.compareTo("0") != 0){ //TENTATIVA DE ACOPLAR O CHECKPOINT INDEX APENAS INTERNAMENTE NO DCB.
+
+            		System.out.println("Acoplando Index na mensagem!");
+            		System.out.println("Mensagem:"+NewOutput.Value);
+            		NewOutput.Value += "®"+App.CkpIndex;
+            		System.out.println("Mensagem:"+NewOutput.Value);
+                		
+            	}*/
+            	
                 MessageToSend = new Message("Update",
                     App.UniqueFederationID,
                     App.UniqueFederateID,
@@ -274,8 +285,10 @@ public class EDCB {
         Set setDeLVTs = BufferSentMessages.keySet();
         Iterator<String> it = setDeLVTs.iterator();
         if (it.hasNext()) {
+        	System.out.println("eh loop 1");
             String aux = it.next();
             while (aux != null) {
+            	System.out.println("eh loop infinito aqui2");
                 //Verifica quais mensagens que foram enviadas nesse tempo
                 //devem ser deletadas (e fazer rollback nos elementos)
                 if (Integer.valueOf(aux) > Integer.valueOf(checkpoint)) {
@@ -290,9 +303,14 @@ public class EDCB {
                     this.AntiMessage("444." + s.FederateDestination, "", aux);
                     aux1++;
                     aux = aux1.toString();
-                    BufferSentMessages.remove(aux);
+                    Message hue = BufferSentMessages.remove(aux);
+                    if(hue == null){
+                    	System.out.println("nao removeu a msg porra nenhuma!");
+                    }
+                    System.out.println("Removeu o aux!"+aux);
                     if (it.hasNext()) {
                         aux = it.next();
+                        System.out.println("proximo aux:"+aux);
                     } else {
                         aux = null;
                     }

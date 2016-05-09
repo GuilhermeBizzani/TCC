@@ -2,12 +2,35 @@
  * algoritmos probabilisticos de criação de checkpoint
  * analise de escanolabilidade 
  * 
- * 
  * automação do teste
  * referência!
  * 
  * 
- * criar um projeto de implementação do z-path
+ * INFERÊNCIA PROBABILISTICA
+ * PROBABILIDADE CONJUNTIVA
+ * 
+ * refinar a automação
+ * ACHAR O ARTIGO!
+ * re-executar as mensagens depois de rollback
+ * 
+ * 
+ * -----criar um projeto de implementação do z-path
+ * 
+ * 
+ * verificar maneira para não excluir a mensagem que gera o rollback
+ * 
+ * 
+ * "sempre gera anti-mensagem" = EDCB linha 55~
+ * 
+ * 
+ * citar o artigo que fala sobre o ÍNDICE de checkpoint
+ * não é 100%, mas aumentou a chance do estado ser seguro
+ * 
+ * citar outros artigos que implementam outras técnicas que são "melhores"
+ * -explicar porque não deu para desenvolver essas técnicas melhores-
+ * 
+ * 
+ * 
  */
 
 
@@ -34,17 +57,19 @@ public class Chat extends javax.swing.JFrame {
     public static boolean rollback = false;
     private ArrayList<String> checkpointsArray = new ArrayList<String>();
     
-    
-    
-   
+    public int CkpIndex;
     
     /** Inicializa o chat com o id do Federado.
     @param id id do federado*/
     public Chat(int id) {
         this.id = id;
+        
+        //inicia a variavel CkpIndex com 0
+        CkpIndex = 0;
+        
         //Seta o LookAndFeel para o GTK++
         try {
-            //UIManager.setLookAndFeel(new com.sun.java.swing.plaf.gtk.GTKLookAndFeel());
+            //UIManager.setLookAndFeel(new com.sun.java.swing.plaf.gtk.GTKLookAndFeel()); ALTERAÇÃO PARA FUNCIONAR NO WINDOWS.
             UIManager.setLookAndFeel(new com.sun.java.swing.plaf.windows.WindowsLookAndFeel());
         } catch (Exception ex) {
         }
@@ -135,6 +160,9 @@ public class Chat extends javax.swing.JFrame {
                 break;
             }
         }
+        MensagensAutomaticas ChatTest = new MensagensAutomaticas(this);
+        Thread chatT = new Thread(ChatTest);
+        chatT.start();
         timeStampText.setText("0");
     }
 
@@ -224,6 +252,7 @@ public class Chat extends javax.swing.JFrame {
     public void setCheckpoint(String timestamp) {
         System.out.println("checkpoint criado: " + timestamp);
         checkpointsArray.add(timestamp);
+        CkpIndex++;
     }
 
     /**Pega o checkpoint necessÃ¡rio para poder entregar a mensagem no tempo passado
@@ -425,56 +454,58 @@ public class Chat extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
-    int opcao = JOptionPane.showConfirmDialog(null, "Deseja realmente sair?", "Fechar ChatDCB", JOptionPane.YES_NO_OPTION);
-    if (opcao == 0) {
-        System.exit(0);
-    }
-}//GEN-LAST:event_closeButtonActionPerformed
-
-private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-    try {
-        Integer.valueOf(recipientComboBox.getSelectedIndex() + 4);
-        try {
-            Integer.valueOf(timeStampText.getText());
-            switch (id) {
-                case 5: {
-                    Gateway5.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText(), timeStampText.getText());
-                    break;
-                }
-                case 6: {
-                    Gateway6.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText(), timeStampText.getText());
-                    break;
-                }
-                case 7: {
-                    Gateway7.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText(), timeStampText.getText());
-                    break;
-                }
-                case 8: {
-                    Gateway8.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText(), timeStampText.getText());
-                    break;
-                }
-                case 9: {
-                    Gateway9.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText(), timeStampText.getText());
-                    break;
-                }
-            }
-            message.setText("");
-            lastEventTimestamp = chatLVT;
-            this.incrementaContador();
-        } catch (Exception e) {
-            JOptionPane.showMessageDialog(null, "O valor do Timestamp deve ser um nÃºmero inteiro.");
-            e.printStackTrace();
-        }
-    } catch (Exception e) {
-        JOptionPane.showMessageDialog(null, "O valor do Recipient deve ser um nÃºmero inteiro.");
-    }
-}//GEN-LAST:event_sendButtonActionPerformed
-
-public void setChatLVT(String chatLVT){
-    this.chatLVT = chatLVT;
-    this.chatLVTaux = chatLVT;
-}
+	private void closeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_closeButtonActionPerformed
+	    int opcao = JOptionPane.showConfirmDialog(null, "Deseja realmente sair?", "Fechar ChatDCB", JOptionPane.YES_NO_OPTION);
+	    if (opcao == 0) {
+	        System.exit(0);
+	    }
+	}//GEN-LAST:event_closeButtonActionPerformed
+	
+	private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+	    try {
+	        Integer.valueOf(recipientComboBox.getSelectedIndex() + 4);
+	        System.out.println("sem a soma:"+recipientComboBox.getSelectedIndex());
+	        try {
+	            Integer.valueOf(timeStampText.getText());
+	            switch (id) {
+	                case 5: {
+	                    Gateway5.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText()+"®"+CkpIndex, timeStampText.getText());
+	                    break;
+	                }
+	                case 6: {
+	                    Gateway6.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText()+"®"+CkpIndex, timeStampText.getText());
+	                    break;
+	                }
+	                case 7: {
+	                    Gateway7.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText()+"®"+CkpIndex, timeStampText.getText());
+	                    break;
+	                }
+	                case 8: {
+	                    Gateway8.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText()+"®"+CkpIndex, timeStampText.getText());
+	                    break;
+	                }
+	                case 9: {
+	                    Gateway9.UpdateAttribute("1." + ((String) recipientComboBox.getSelectedItem()).split(" ")[1], message.getText()+"®"+CkpIndex, timeStampText.getText());
+	                    break;
+	                }
+	            }
+	            message.setText("");
+	            lastEventTimestamp = chatLVT;
+	            this.incrementaContador();
+	        } catch (Exception e) {
+	            JOptionPane.showMessageDialog(null, "O valor do Timestamp deve ser um nÃºmero inteiro.");
+	            e.printStackTrace();
+	        }
+	    } catch (Exception e) {
+	        JOptionPane.showMessageDialog(null, "O valor do Recipient deve ser um nÃºmero inteiro.");
+	    }
+	}//GEN-LAST:event_sendButtonActionPerformed
+	
+	public void setChatLVT(String chatLVT){
+	    this.chatLVT = chatLVT;
+	    this.chatLVTaux = chatLVT;
+	    System.out.println("Atualizou o LVT para: "+chatLVT);
+	}
 
     public void rollback(String Momento) {
         PriorityQueue<Message> Lista = null;
@@ -510,10 +541,13 @@ public void setChatLVT(String chatLVT){
             while (s != null) {
                 //System.out.println("s.LVT: "+s.LVT +" Momento: "+ Momento);
                 //Verifica quais mensagens devem ser deletadas
-                if (Integer.valueOf(s.LVT) > Integer.valueOf(Momento)) {
+            	System.out.println("LVT da mensagem '"+s.Value+"' sendo testada"+s.LVT);
+                if (Integer.valueOf(s.LVT) > Integer.valueOf(Momento)){  // && Integer.valueOf(s.LVT) != Integer.valueOf(Momento)) {
+                	
                     todasMensagens += s.Value+"\n"; // comeco a acrescentar o \n para se assemelhar com a mensagem que está na tela.
                     System.out.println("mensagem a ser apagada devido ao rollback: " + s.Value);
                     ListaParaRemocao.add(s);
+                	
                 }
                 if (it.hasNext()) {
                     s = it.next();
@@ -551,7 +585,7 @@ public void setChatLVT(String chatLVT){
                 }
             }
         }
-
+        System.out.println("passou aqui! e momento ="+Momento);
         //Recuar LVT para o Momento no Rollback;
         switch (id) {
             case 5: {
@@ -584,19 +618,29 @@ public void setChatLVT(String chatLVT){
         	 * pego a última do split, que na verdade é a primeira que deve ser removida da tela
         	 * e reescrevo o "receivedText" da posição 0 até o inicio da mensagem a ser apagada.
         	 */
-            System.out.println("Mensagens para serem retiradas: " + todasMensagens);
-            String[] teste = todasMensagens.split("\n");
-            String teste2 = teste[0]; //primeira posicao das mensagens a serem removidas, para apagar a partir deste.
+            //System.out.println("Mensagens para serem retiradas: " + todasMensagens);
+            String teste[] = todasMensagens.split("\n");
+            //System.out.println("Length:"+teste.length);
+            //System.out.println(teste);
+            //System.out.println("fim do teste");
+            //if(teste.length == 1) return; //caso só tenha uma mensagem a ser removida significa que é a nova mensagem.
+            String teste2;
+            if(teste.length == 1){
+            	teste2 = teste[0];
+            }else{
+            	teste2 = teste[0]; //primeira posicao das mensagens a serem removidas, para apagar a partir deste.
+            	//tem que ser [0] para o teste automático, e [1] para testar manualmente
+            }
             System.out.println("Teste2:"+teste2);
             System.out.println("Mensagem do setText:"+ this.getReceivedText());
             int posicao = this.getReceivedText().lastIndexOf(teste2);
             System.out.println("Posicaoo na substring: "+posicao);
-            if (posicao > 0) {
+            if (posicao != -1) {
                 this.receivedText.setText(this.getReceivedText().substring(0, posicao));
             } else {
-                this.receivedText.setText("");
+                //this.receivedText.setText(""); //não zera o "setReceivedText pois provavelmente não havia mensagem para ser apagada.
             }
-
+            System.out.println("Terminou o rollback, chatlvt:"+chatLVT);
         }
     }
 
@@ -680,10 +724,11 @@ public void setChatLVT(String chatLVT){
                 //lookahead de 100
                 aux = aux + 100;
                 while (chatLVT.compareTo(chatLVTaux) == 0) {
-                    try {
+                    /*try {
                         Thread.sleep(100);
                     } catch (InterruptedException e) {
-                    }
+                    }*/
+                    System.out.println("Atualizando LVT: "+chatLVT+" aux: "+chatLVTaux);
                     switch (id) {
                         case 5: {
                             //aux -= 99;
@@ -748,4 +793,110 @@ public void setChatLVT(String chatLVT){
             }
         }
     }*/
+    
+    private class MensagensAutomaticas implements Runnable{
+
+        private Chat outerClass;
+
+        public MensagensAutomaticas(Chat pointer){ // construtor
+            outerClass = pointer;
+        }
+
+        public void run(){
+        	System.out.println("Startou a thread!");
+            while(true){
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ex) {
+                	System.out.println("Exception no sleep!");
+                	System.out.println(ex);
+                }
+                switch(id){//cada chat enviará uma série de mensagens
+                    case 5:
+                    	if(outerClass.chatLVT.compareTo("200") == 0){
+                            Gateway5.UpdateAttribute("1.6", "Msg aos 200-500"+"®"+outerClass.CkpIndex, "500");
+                            lastEventTimestamp = chatLVT;
+                        }
+                    	if(outerClass.chatLVT.compareTo("1000") == 0){
+                            Gateway5.UpdateAttribute("1.6", "Msg aos 1200"+"®"+outerClass.CkpIndex, "1200");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        break;
+                    case 6:
+                        if(outerClass.chatLVT.compareTo("1200" ) == 0 && outerClass.CkpIndex == 2){
+                            Gateway6.UpdateAttribute("1.8", "Msg 1200-1500"+"®"+outerClass.CkpIndex, "1500");
+                            lastEventTimestamp = chatLVT;
+                            outerClass.CkpIndex++;
+                        }
+                        if(outerClass.chatLVT.compareTo("1300") == 0 && outerClass.CkpIndex == 3){
+                        	System.out.println("Avancando LVT... de 1300 para 2700");
+                    		outerClass.chatLVT = Gateway6.updateLVT("2700");
+                            outerClass.CkpIndex++;
+
+                        }
+                        break; 
+                    case 7:
+                        /*if(outerClass.chatLVT.compareTo("800") == 0){
+                            System.out.println("Chat 7 no LVT 800 no caso de Teste! Enviando msg ao federado 8 com timestamp 900.");
+                            Gateway7.UpdateAttribute("1.8", "Mensagem 3 do teste", "900");
+                            lastEventTimestamp = chatLVT;
+                        }*/
+                        break;
+                    case 8:
+                    	if(outerClass.chatLVT.compareTo("1800") ==0 && outerClass.CkpIndex == 1){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem 2200"+"®"+outerClass.CkpIndex, "2200");
+                            lastEventTimestamp = chatLVT;
+                            outerClass.CkpIndex++;
+                            
+                    	}
+                        /*if(outerClass.chatLVT.compareTo("1000") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem 1200", "1200");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        if(outerClass.chatLVT.compareTo("1300") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem 1700", "1700");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        if(outerClass.chatLVT.compareTo("1600") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem 1900", "1900");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        if(outerClass.chatLVT.compareTo("1900") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem 2100", "2100");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        if(outerClass.chatLVT.compareTo("2200") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem 2400", "2400");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        if(outerClass.chatLVT.compareTo("2500") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem 2900", "2900");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        if(outerClass.chatLVT.compareTo("3500") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem rollbacks 2500", "2500");
+                            lastEventTimestamp = chatLVT;
+                        }
+                        if(outerClass.chatLVT.compareTo("4500") ==0 ){
+                            Gateway8.UpdateAttribute("1.6", "Mensagem rollbacks 5000", "5000");
+                            lastEventTimestamp = chatLVT;
+                        }*/
+                        break;
+                    case 9:
+                        /*if(outerClass.chatLVT.compareTo("1500") == 0){
+                            System.out.println("Chat 9 no LVT 1500 no caso de Teste! Enviando msg ao federado 7 com timestamp 1700.");
+                            Gateway9.UpdateAttribute("1.7", "Mensagem 5 do teste", "1700");
+                            lastEventTimestamp = chatLVT;
+                        }*/
+                        break;
+                }
+
+            }
+        }
+
+    }
+
+    
+    
 }

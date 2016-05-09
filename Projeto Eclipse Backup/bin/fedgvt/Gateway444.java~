@@ -1,0 +1,176 @@
+import java.io.*;
+import java.util.*;
+/////////////////////////////// INICIO CLASSE GATEWAY ///////////////////////////////////////
+
+public class Gateway444
+{
+	public static ApplicationDCB App;
+	public static Fedgvt Fed;  // Fornece acesso aos metodos do Federado
+	//static public String st[] = { "1 SPC", "2 ABC", "3 DEF", "4 GHI", "5 JKL", "6 MNO", "7 PQRS", "8 TUV", "9 WXYZ", "<<", "0 MODE", ">>"  };
+	public static long medida = 0;
+
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	public static void SetPointer(ApplicationDCB pointer)
+	{
+		App = pointer;
+
+		//System.out.println("Gateway Inicializado...");
+
+		Fed = new Fedgvt();
+
+	}
+
+	public Gateway444()
+	{
+	}
+
+	///////////////////////////////////////////////////////////////////////////
+	// Métodos de tratamento do tempo para modo conservador (síncrono)
+	///////////////////////////////////////////////////////////////////////////
+
+	public static String updateLVT(String federateLVT)
+	// Recebe o LVT do federado e solicita atualização ao EF.
+	{
+		return (App.NewEF.updateLVT(federateLVT));
+	}
+
+	public static String returnGVT()
+	// monitora o avanço do LVT do federado para não ultrapassar o GVT
+	{
+		return (App.NewDCB.getGVT());
+	}
+
+	/////////////////////////////////////////////////////////////////////////////////////
+	public static void ProtocolConverter(int AttributeID)
+	{
+		InputAttribute A0 = null;
+		//InputAttribute A1 = null;
+		Calendar hoje = Calendar.getInstance();
+		System.out.println("Recebeu msg");
+
+		switch (AttributeID)
+		{
+			case 444:
+			{
+				A0 = App.NewEF.getAttributeReceived("444.2");
+				if(A0 != null)
+				{
+				  	// Linhas abaixo foram utilizadas para tomada de desempenho
+				  	//if (A0.Value.compareTo("pronto1") == 0) {
+				    // //   System.out.println("Display atualizado em:"+hoje.getTimeInMillis());
+				    //    medida = hoje.getTimeInMillis() - medida;
+				    //    System.out.println("Medida:"+medida);
+				    // } else if (A0.Value.compareTo("pronto0") == 0) {
+					//	 medida = hoje.getTimeInMillis();
+					// } else
+
+				     calcGVT(A0.Value,A0.Source);
+
+				     App.NewEF.AttributeRemove(A0);
+				}
+				break;
+			}
+		}
+	}
+
+    //////////////// INICIO FUNÇÕES NATIVAS DO FEDERADO ///////////////
+
+    public static void calcGVT(String remoteTime, String origem)
+    {
+		Fed.calcGVT(remoteTime,origem);
+    }
+
+    ///////////////// FIM FUNÇÕES NATIVAS DO FEDERADO /////////////////
+
+    ////////// INICIO FUNÇÕES P/ SETAR ATRIBUTOS NO FEDERADO //////////
+
+    //////////// FIM FUNÇÕES P/ SETAR ATRIBUTOS NO FEDERADO ///////////
+
+
+	//////////////////////////////// INICIO TRADUTOR ////////////////////////////////////////
+
+	public long ToLong(String value)
+	{
+		return Long.parseLong(value);
+	}
+
+	public double ToDouble (String value)
+	{
+		return Double.parseDouble(value);
+	}
+
+	public float ToFloat(String value)
+	{
+		return Float.parseFloat(value);
+	}
+
+	public int ToInt(String value)
+	{
+		return Integer.parseInt(value);
+	}
+
+	public char ToChar(String value)
+	{
+		return value.charAt(0);
+	}
+
+	public char[] ToCharArray(String value)
+	{
+		return value.toCharArray();
+	}
+
+	public boolean ToBoolean (String value)
+	{
+		boolean bool = false;
+		String val = value.toUpperCase();
+
+		if (val.compareTo("TRUE") == 0)
+			bool = true;
+
+		return bool;
+	}
+
+	//////////////////////////////////////////////////////
+
+	public static void UpdateAttribute(String Name, String Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,Value,timestamp);
+	}
+
+	public static void UpdateAttribute(String Name, int Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,String.valueOf(Value),timestamp);
+	}
+
+	public void UpdateAttribute(String Name, boolean Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,String.valueOf(Value),timestamp);
+	}
+
+	public void UpdateAttribute(String Name, float Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,String.valueOf(Value),timestamp);
+	}
+
+	public void UpdateAttribute(String Name, double Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,String.valueOf(Value),timestamp);
+	}
+
+	public void UpdateAttribute(String Name, long Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,String.valueOf(Value),timestamp);
+	}
+
+	public void UpdateAttribute(String Name, char Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,String.valueOf(Value),timestamp);
+	}
+
+	public void UpdateAttribute(String Name, char[] Value, String timestamp)
+	{
+		App.NewEDCB.Update(Name,String.valueOf(Value),timestamp);
+	}
+	////////////////////////////////// FIM TRADUTOR /////////////////////////////////////////
+}

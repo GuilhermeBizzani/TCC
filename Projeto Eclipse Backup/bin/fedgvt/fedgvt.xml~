@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<CONFIG>
+  <INFO federateid="444" federationid="1" localport="4444" type="synchronous">
+      <ATTRIBUTE id="444.3" name="port" type="String">
+        <DESTINATION federationid="1" federateid="5" attribute="444.1" />
+        <DESTINATION federationid="1" federateid="6" attribute="444.1" />
+        <DESTINATION federationid="1" federateid="7" attribute="444.1" />
+        <DESTINATION federationid="1" federateid="8" attribute="444.1" />
+        <DESTINATION federationid="1" federateid="9" attribute="444.1" />
+      </ATTRIBUTE>
+      <ATTRIBUTE id="444.2" name="calcGVT.remoteTime" type="String" />
+  </INFO>
+  <FEDERATION id="1">
+      <FEDERATE id="5" ip="127.0.0.1" port="4004" /> 
+      <FEDERATE id="6" ip="127.0.0.1" port="4005" /> 
+      <FEDERATE id="7" ip="127.0.0.1" port="4005" /> 
+      <FEDERATE id="8" ip="127.0.0.1" port="4005" /> 
+      <FEDERATE id="9" ip="127.0.0.1" port="4005" /> 
+  </FEDERATION>
+</CONFIG>

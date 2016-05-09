@@ -89,6 +89,10 @@ public class EF {
     /////////////////////////////////////////////////////////////////////////////////////
     public void Decode(Message Msg) throws IOException // Decodifica a mensagem
     {
+
+    	
+    	
+    	
         this.StoreReceivedMessages(Msg);
 
         InputAttribute AttributeTemp = null;
@@ -99,15 +103,42 @@ public class EF {
             Source,
             Msg.LVT, // Fiz alteraï¿½ï¿½o aqui (o LVT ï¿½ o timestamp da msg)
             getAttributeType(Msg.AttributeID));
-        if (Msg.AttributeID.compareTo("444.3") == 0) {
+        
+        if (Msg.AttributeID.compareTo("444.3") == 0) { //aqui onde recebe uma mensagem que causa rollback
             InputAttributeQueue.add(0, AttributeTemp);
             System.out.println("adicionou na primeira posiÃ§Ã£o");
             contElemIAQ++;
             seekInputAttributeQueue();
             int i = 0;
+            
+            //this.StoreReceivedMessages(Msg);
+
         } else if (Msg.AttributeID.compareTo("444.1") != 0) { //aqui é onde recebe a mensagem de outro chat
         	
+        	
         	//modificações de Guilherme Bizzani
+        	
+        	//código para criação e manutenção do HashMap, que mantém o timestamp das ultimas 5 mensagens recebidas de cada outro chat
+        	
+        	
+        	int lvtMsg = Integer.parseInt(Msg.LVT);
+        	//int lvtChat = Integer.parseInt(actualLVT);
+        	if(lvtMsg < actualLVT && Msg.Value.compareTo("") != 0){
+        		
+        		System.out.println("TA SAINDO DA JAULA O MONSTROOOO" + getLVT());
+        		
+        		AttributeTemp.uid = "444.3";
+        		
+                InputAttributeQueue.add(0, AttributeTemp);
+                System.out.println("adicionou na primeira posicaoo");
+                contElemIAQ++;
+                seekInputAttributeQueue();
+                
+        		System.out.println("TA ENTRANDO DA JAULA O MONSTROOOO" + getLVT());
+
+                return;
+        	}
+        	
         	
             System.out.println("SOURCE:"+Source+".");
         	
@@ -120,6 +151,20 @@ public class EF {
 		            	qt = hashQt.get(Source);
 		            	int tam = qt.size();
 		            	System.out.println("Tamanho do Vector do hash:"+tam);
+		            	
+		            	//código para verificar caso já tenha ocorrido rollback
+		            	
+		            	if(qt.get(tam-1) > Integer.parseInt(Msg.LVT)){//se tiver mensagens salvas no vetor com LVT maior que a recebida agora, quer dizer que realizou rollback
+		            		System.out.println("Entrou na verificacao de rollback das mensagens de predicao");
+		            		int i = tam-1;
+		            		while(qt.size() > 0 && qt.get(i) > Integer.parseInt(Msg.LVT)){
+		            			System.out.println("Removendo mensagem do vetor:"+qt.get(i));
+		            			qt.removeElementAt(i);
+		            			i--;
+		            		}
+		            	}
+		            	
+
 		            	if(tam < 5){ //caso não tenha 5 mensagens recebidas ainda, simplesmente adiciona a nova.
 		            		System.out.println("Tam eh menor que 5, simplesmente adicionou no Vector!");
 		            		qt.add(Integer.parseInt(Msg.LVT));
@@ -246,9 +291,12 @@ public class EF {
 
     /////////////////////////////////////////////////////////////////////////////////////
     public void StoreReceivedMessages(Message ReceivedMessage) {
-        if ((ReceivedMessage.FederateSource.compareTo("444") != 0) && (ReceivedMessage.Value.compareTo("") != 0)) {
+    	//System.out.println("FederateSource da mensagem atual:"+ReceivedMessage.FederateSource);
+        
+    	if ((ReceivedMessage.FederateSource.compareTo("444") != 0) && (ReceivedMessage.Value.compareTo("") != 0)) {
             BufferReceivedMessages.add(ReceivedMessage);
         }
+        
     /*System.out.println("Inicio do BufferReceivedMessages");
     for (Message e:BufferReceivedMessages){
     System.out.println(e);
@@ -290,6 +338,9 @@ public class EF {
             //System.out.print(Temp.LVT +" ** notime ** ");
             } // se Temp.LVT nï¿½o comeï¿½ar com 0 entï¿½o ï¿½ originario de sincrono
             else if (lessTimestamp <= Integer.parseInt(App.NewDCB.getGVT()) && Temp.LVT.indexOf('0') != 0) {
+            	
+            	System.out.println("entrou no else if");
+            	
                 //System.out.println("TIMESTAMP DA MSG: "+lessTimestamp+" GVT:"+App.NewDCB.getGVT()+"TempUID:"+Temp.uid);
 
                 // Marcador de tempo de inicio do tempo gasto para atualizaï¿½ï¿½o do display
@@ -300,6 +351,7 @@ public class EF {
                     updateLVT(String.valueOf(lessTimestamp));
                 }
             } else {
+            	System.out.println("entrou no ELSEEE!");
                 //System.out.println("\nEntrou aki");
                 //App.NewGateway.Redirect(getProtocolConverterID(Temp.uid));
                 break;
