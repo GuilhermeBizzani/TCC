@@ -293,21 +293,27 @@ public class EDCB {
                 //devem ser deletadas (e fazer rollback nos elementos)
                 if (Integer.valueOf(aux) > Integer.valueOf(checkpoint)) {
                     Message s = BufferSentMessages.get(aux);
-                    //System.out.println("mensagem: " + s.Value + "do elemento 1." + s.FederateDestination + " lvt " + s.LVT);
+                    System.out.println("mensagem: " + s.Value + "do elemento 1." + s.FederateDestination + " lvt " + s.LVT);
                     Integer aux1 = Integer.valueOf(s.LVT);
+                    System.out.println("aux1: "+aux1);
                     if (aux1 > 0) {
                         --aux1;
                     }
-                    aux = aux1.toString();
+                    //aux = aux1.toString();
                     //Dispara a anti-mensagem
-                    this.AntiMessage("444." + s.FederateDestination, "", aux);
-                    aux1++;
-                    aux = aux1.toString();
+                    this.AntiMessage("444." + s.FederateDestination, "", aux1.toString());
+                    //aux1++;
+                    //aux = aux1.toString();
+                    
+                    System.out.println("msg: "+BufferSentMessages.get(aux));
+                    
                     Message hue = BufferSentMessages.remove(aux);
+                    
                     if(hue == null){
                     	System.out.println("nao removeu a msg porra nenhuma!");
+                    }else{
+                    	System.out.println("MDS, removeu a msg!");
                     }
-                    System.out.println("Removeu o aux!"+aux);
                     if (it.hasNext()) {
                         aux = it.next();
                         System.out.println("proximo aux:"+aux);

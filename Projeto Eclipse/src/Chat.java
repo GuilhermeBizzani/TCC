@@ -171,7 +171,27 @@ public class Chat extends javax.swing.JFrame {
      */
     public void setReceivedText(String value) {
         lastEventTimestamp = chatLVT;
-
+        
+        
+        //alteração para criar um checkpoint caso a mensagem recebida contenha o checkpoint INDEX maior do que o atual.
+        if(id != 5){
+        	
+        	String[] splt = value.split("®");
+        	
+        	if(splt.length == 2){
+        		String indexReceived = splt[1];
+        		System.out.println("Recebeu o Index: "+indexReceived);
+        		System.out.println("Index atual: "+CkpIndex);
+        		int indexReceivedINT = Integer.parseInt(indexReceived);
+        		if(indexReceivedINT > CkpIndex){
+        			System.out.println("Criando checkpoint baseado no Index de mensagem recebida.");
+        			this.setCheckpoint(this.chatLVT);
+        			CkpIndex = indexReceivedINT;
+        		}
+        		
+        	}
+        }
+        
         switch (id) {
             case 5: {
                 this.receivedText.setText(receivedText.getText() + value + "\n");
@@ -464,7 +484,7 @@ public class Chat extends javax.swing.JFrame {
 	private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
 	    try {
 	        Integer.valueOf(recipientComboBox.getSelectedIndex() + 4);
-	        System.out.println("sem a soma:"+recipientComboBox.getSelectedIndex());
+	        //System.out.println("sem a soma:"+recipientComboBox.getSelectedIndex());
 	        try {
 	            Integer.valueOf(timeStampText.getText());
 	            switch (id) {
@@ -822,6 +842,10 @@ public class Chat extends javax.swing.JFrame {
                             Gateway5.UpdateAttribute("1.6", "Msg aos 1200"+"®"+outerClass.CkpIndex, "1200");
                             lastEventTimestamp = chatLVT;
                         }
+                    	if(outerClass.chatLVT.compareTo("300") == 0){
+                            Gateway5.UpdateAttribute("1.8", "Msg do 1.5 aos 700"+"®"+outerClass.CkpIndex, "700");
+                            lastEventTimestamp = chatLVT;
+                        }
                         break;
                     case 6:
                         if(outerClass.chatLVT.compareTo("1200" ) == 0 && outerClass.CkpIndex == 2){
@@ -844,7 +868,7 @@ public class Chat extends javax.swing.JFrame {
                         }*/
                         break;
                     case 8:
-                    	if(outerClass.chatLVT.compareTo("1800") ==0 && outerClass.CkpIndex == 1){
+                    	if(outerClass.chatLVT.compareTo("1800") ==0 && outerClass.CkpIndex == 2){
                             Gateway8.UpdateAttribute("1.6", "Mensagem 2200"+"®"+outerClass.CkpIndex, "2200");
                             lastEventTimestamp = chatLVT;
                             outerClass.CkpIndex++;

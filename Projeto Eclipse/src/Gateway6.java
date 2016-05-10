@@ -60,16 +60,13 @@ public class Gateway6 {
                 }
                 break;
             }
-            
             //criacao:
             case 3: {
             	System.out.println("entrou no case 3!");
             	Fed.setCheckpoint(App.NewEF.getLVT());
-            	
             	break;
             }
             //fim
-            
             case 444: {
                 A0 = App.NewEF.getAttributeReceived("444.3");
                 if (A0 != null) {
@@ -88,11 +85,6 @@ public class Gateway6 {
                         Fed.setReceivedText(A0.Value);
                         Fed.rollback = false;
                         System.out.println("fim");
-                        try{
-                        	Thread.sleep(500);
-                        }catch(InterruptedException ex){
-                        	
-                        }
                     }
                 }
                 break;

@@ -106,7 +106,7 @@ public class EF {
         
         if (Msg.AttributeID.compareTo("444.3") == 0) { //aqui onde recebe uma mensagem que causa rollback
             InputAttributeQueue.add(0, AttributeTemp);
-            System.out.println("adicionou na primeira posiÃ§Ã£o");
+            System.out.println("adicionou na primeira posicao1");
             contElemIAQ++;
             seekInputAttributeQueue();
             int i = 0;
@@ -118,28 +118,28 @@ public class EF {
         	
         	//modificações de Guilherme Bizzani
         	
-        	//código para criação e manutenção do HashMap, que mantém o timestamp das ultimas 5 mensagens recebidas de cada outro chat
         	
-        	
+        	//código para modificar o UID da mensagem, pois seu timestamp é menor que o LVT atual.
         	int lvtMsg = Integer.parseInt(Msg.LVT);
         	//int lvtChat = Integer.parseInt(actualLVT);
         	if(lvtMsg < actualLVT && Msg.Value.compareTo("") != 0){
         		
-        		System.out.println("TA SAINDO DA JAULA O MONSTROOOO" + getLVT());
+        		System.out.println("Alterando o UID da mensagem para que se torne uma mensagem que cause rollback");
         		
         		AttributeTemp.uid = "444.3";
         		
                 InputAttributeQueue.add(0, AttributeTemp);
-                System.out.println("adicionou na primeira posicaoo");
+                System.out.println("adicionou na primeira posicao2");
                 contElemIAQ++;
                 seekInputAttributeQueue();
                 
-        		System.out.println("TA ENTRANDO DA JAULA O MONSTROOOO" + getLVT());
-
+                System.out.println("LVT atual, depois "+actualLVT);
+                //updateLVT(Msg.LVT);
                 return;
         	}
         	
         	
+        	//código para criação e manutenção do HashMap, que mantém o timestamp das ultimas 5 mensagens recebidas de cada outro chat
             System.out.println("SOURCE:"+Source+".");
         	
             if(App.FederateType.compareTo("synchronous") != 0){
@@ -337,8 +337,8 @@ public class EF {
                 }
             //System.out.print(Temp.LVT +" ** notime ** ");
             } // se Temp.LVT nï¿½o comeï¿½ar com 0 entï¿½o ï¿½ originario de sincrono
-            else if (lessTimestamp <= Integer.parseInt(App.NewDCB.getGVT()) && Temp.LVT.indexOf('0') != 0) {
-            	
+            //else if (lessTimestamp <= Integer.parseInt(App.NewDCB.getGVT()) && Temp.LVT.indexOf('0') != 0) {
+            else if (lessTimestamp <= actualLVT && Temp.LVT.indexOf('0') != 0) {
             	System.out.println("entrou no else if");
             	
                 //System.out.println("TIMESTAMP DA MSG: "+lessTimestamp+" GVT:"+App.NewDCB.getGVT()+"TempUID:"+Temp.uid);
@@ -351,8 +351,8 @@ public class EF {
                     updateLVT(String.valueOf(lessTimestamp));
                 }
             } else {
-            	System.out.println("entrou no ELSEEE!");
-                //System.out.println("\nEntrou aki");
+            	System.out.println("entrou no ELSE!");
+            	System.out.println("LVT do Temp: "+Temp.LVT+" Valor do Temp: "+Temp.Value+" e UID: "+Temp.uid);
                 //App.NewGateway.Redirect(getProtocolConverterID(Temp.uid));
                 break;
             }

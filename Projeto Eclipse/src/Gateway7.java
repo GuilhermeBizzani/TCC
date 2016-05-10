@@ -51,7 +51,7 @@ public class Gateway7 {
             case 3: {
             	System.out.println("entrou no case 3!");
             	Fed.setCheckpoint(App.NewEF.getLVT());
-            	
+            	break;
             }
             //fim
             case 444: {
