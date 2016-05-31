@@ -23,6 +23,7 @@ public class EF {
         App = A;
         actualLVT = 0;
         System.out.println("EF Inicializado...");
+        
     }
 
     ////////////////////////////////////////////////////////////////////////////////////
@@ -76,8 +77,21 @@ public class EF {
         	
         }
         
-        //fim
+        //codigo para "finalizar" a execução dos federados que sofreram rollbacks.
         
+        if(App.FederateType.compareTo("synchronous") != 0){
+        	if(actualLVT == 15000){
+	        	System.out.println("Simulação chegou no LVT 15000, finalizando processo....");
+	        	
+	        	System.out.println("GVT atual: "+App.NewDCB.getGVT());
+	        	
+	        	System.out.println("Total de anti-mensagens: "+App.NewEDCB.totalAntiMsg);
+	        	
+	        	return "-1";
+        	
+        	}
+        }
+        //fim
         
         
         
@@ -106,7 +120,7 @@ public class EF {
         
         if (Msg.AttributeID.compareTo("444.3") == 0) { //aqui onde recebe uma mensagem que causa rollback
             InputAttributeQueue.add(0, AttributeTemp);
-            System.out.println("adicionou na primeira posicao1");
+            //System.out.println("adicionou na primeira posicao1");
             contElemIAQ++;
             seekInputAttributeQueue();
             int i = 0;
@@ -124,23 +138,23 @@ public class EF {
         	//int lvtChat = Integer.parseInt(actualLVT);
         	if(lvtMsg < actualLVT && Msg.Value.compareTo("") != 0){
         		
-        		System.out.println("Alterando o UID da mensagem para que se torne uma mensagem que cause rollback");
+        		//System.out.println("Alterando o UID da mensagem para que se torne uma mensagem que cause rollback");
         		
         		AttributeTemp.uid = "444.3";
         		
                 InputAttributeQueue.add(0, AttributeTemp);
-                System.out.println("adicionou na primeira posicao2");
+                //System.out.println("adicionou na primeira posicao2");
                 contElemIAQ++;
                 seekInputAttributeQueue();
                 
-                System.out.println("LVT atual, depois "+actualLVT);
+                //System.out.println("LVT atual, depois "+actualLVT);
                 //updateLVT(Msg.LVT);
                 return;
         	}
         	
         	
         	//código para criação e manutenção do HashMap, que mantém o timestamp das ultimas 5 mensagens recebidas de cada outro chat
-            System.out.println("SOURCE:"+Source+".");
+            //System.out.println("SOURCE:"+Source+".");
         	
             if(App.FederateType.compareTo("synchronous") != 0){
             	
@@ -150,15 +164,15 @@ public class EF {
 		            	Vector<Integer> qt = new Vector<Integer>();
 		            	qt = hashQt.get(Source);
 		            	int tam = qt.size();
-		            	System.out.println("Tamanho do Vector do hash:"+tam);
+		            	//System.out.println("Tamanho do Vector do hash:"+tam);
 		            	
 		            	//código para verificar caso já tenha ocorrido rollback
 		            	
 		            	if(qt.get(tam-1) > Integer.parseInt(Msg.LVT)){//se tiver mensagens salvas no vetor com LVT maior que a recebida agora, quer dizer que realizou rollback
-		            		System.out.println("Entrou na verificacao de rollback das mensagens de predicao");
+		            		//System.out.println("Entrou na verificacao de rollback das mensagens de predicao");
 		            		int i = tam-1;
 		            		while(qt.size() > 0 && qt.get(i) > Integer.parseInt(Msg.LVT)){
-		            			System.out.println("Removendo mensagem do vetor:"+qt.get(i));
+		            			//System.out.println("Removendo mensagem do vetor:"+qt.get(i));
 		            			qt.removeElementAt(i);
 		            			i--;
 		            		}
@@ -166,15 +180,15 @@ public class EF {
 		            	
 
 		            	if(tam < 5){ //caso não tenha 5 mensagens recebidas ainda, simplesmente adiciona a nova.
-		            		System.out.println("Tam eh menor que 5, simplesmente adicionou no Vector!");
+		            		//System.out.println("Tam eh menor que 5, simplesmente adicionou no Vector!");
 		            		qt.add(Integer.parseInt(Msg.LVT));
-		            		System.out.println("Vector:"+qt);
+		            		//System.out.println("Vector:"+qt);
 		            	}else{//já possui 5 mensagens, então tem que excluir a mais antiga.
-		            		System.out.println("Vector antes do remove:"+qt);
+		            		//System.out.println("Vector antes do remove:"+qt);
 							qt.removeElementAt(0);
-							System.out.println("Vector depois do remove:"+qt);
+							//System.out.println("Vector depois do remove:"+qt);
 							qt.add(Integer.parseInt(Msg.LVT));
-							System.out.println("Vector depois do add:"+qt);
+							//System.out.println("Vector depois do add:"+qt);
 		            	}
 		            	hashQt.put(Source, qt);
 		            	
@@ -183,7 +197,7 @@ public class EF {
 		            	Vector<Integer> aux = new Vector<Integer>();
 		            	aux.add(Integer.parseInt(Msg.LVT));
 		            	hashQt.put(Source, aux);
-		            	System.out.println("Criou uma key do hash! key:"+Source+"VALOR COM VECTOR:"+hashQt.get(Source));
+		            	//System.out.println("Criou uma key do hash! key:"+Source+"VALOR COM VECTOR:"+hashQt.get(Source));
 		            }
 	            	int dif, aux;
 	            	if(hashQt.get(Source).size() > 1){
@@ -193,74 +207,14 @@ public class EF {
 	            		aux = Integer.parseInt(Msg.LVT);
 	            	}
 	                aux += Integer.parseInt(Msg.LVT);
-	                System.out.println("Mensagem recebida do federado"+ Source +" previsão:"+aux+" e tamanho do vector = "+hashQt.get(Source).size());
+	                //System.out.println("Mensagem recebida do federado"+ Source +" previsão:"+aux+" e tamanho do vector = "+hashQt.get(Source).size());
 	                //System.out.println("Value:"+Msg.Value+".");
 	                if(aux < menorPredic){
 	                	menorPredic = aux;
-	                	System.out.println("Menor predicao atualizada:"+menorPredic+".");
+	                	//System.out.println("Menor predicao atualizada:"+menorPredic+".");
 	                }
 	            }
             }
-            	
-            /*
-            if(Source.compareTo("15") == 0){
-        		if(Msg.Value.compareTo("") != 0){
-	            	this.qt5++;
-	                int aux = Integer.parseInt(Msg.LVT) / this.qt5;
-	                aux += Integer.parseInt(Msg.LVT);
-	                System.out.println("Mensagem recebida do federado 5! previsão: "+Msg.LVT+" + " + aux);
-	                //System.out.println("Value:"+Msg.Value+".");
-	                if(aux < menorPredic){
-	                	menorPredic = aux;
-	                	System.out.println("Menor predicao atualizada:"+menorPredic+".");
-	                }
-        		}
-        	}else if(Source.compareTo("16") == 0){
-            	this.qt6++;
-                int aux = Integer.parseInt(Msg.LVT) / this.qt6;
-                aux += Integer.parseInt(Msg.LVT);
-                System.out.println("Mensagem recebida do federado 6! previsão: "+Msg.LVT+" + " + aux);
-                //System.out.println("Value:"+Msg.Value+".");
-                if(aux < menorPredic){
-                	menorPredic = aux;
-                	System.out.println("Menor predicao atualizada:"+menorPredic+".");
-                }                
-        	}else if(Source.compareTo("17") == 0){
-    			this.qt7++;
-    			int aux = Integer.parseInt(Msg.LVT) / this.qt7;
-                aux += Integer.parseInt(Msg.LVT);
-    			System.out.println("Mensagem recebida do federado 7! previsão: "+Msg.LVT+" + " + aux);
-    			//System.out.println("Value:"+Msg.Value+".");
-                if(aux < menorPredic){
-                	menorPredic = aux;
-                	System.out.println("Menor predicao atualizada:"+menorPredic+".");
-                }        		
-        	}else if(Source.compareTo("18") == 0){
-    			this.qt8++;
-    			int aux = Integer.parseInt(Msg.LVT) / this.qt8;
-                aux += Integer.parseInt(Msg.LVT);
-    			System.out.println("Mensagem recebida do federado 8! previsão: "+Msg.LVT+" + " + aux);
-    			//System.out.println("Value:"+Msg.Value+".");
-                if(aux < menorPredic){
-                	menorPredic = aux;
-                	System.out.println("Menor predicao atualizada:"+menorPredic+".");
-                }        		
-        	}else if(Source.compareTo("19") == 0){
-    			this.qt9++;
-    			int aux = Integer.parseInt(Msg.LVT) / this.qt9;
-                aux += Integer.parseInt(Msg.LVT);
-    			System.out.println("Mensagem recebida do federado 9! previsão: "+Msg.LVT+" + " + aux);
-    			//System.out.println("Value:"+Msg.Value+".");
-                if(aux < menorPredic){
-                	menorPredic = aux;
-                	System.out.println("Menor predicao atualizada:"+menorPredic+".");
-                }        		
-        	}*/
-        	
-        	/*
-        	 * otimizar, fazer HASHMAP para não precisar de replicação de código.
-        	 * com a menorPredic, achar onde atualiza o LVT, e quando detectar que o LVT <= menorPredic, mandar requisição de checkpoint e "resetar" o menorPredic.
-        	 */
         	
         	//codigo original
         	
@@ -339,20 +293,33 @@ public class EF {
             } // se Temp.LVT nï¿½o comeï¿½ar com 0 entï¿½o ï¿½ originario de sincrono
             //else if (lessTimestamp <= Integer.parseInt(App.NewDCB.getGVT()) && Temp.LVT.indexOf('0') != 0) {
             else if (lessTimestamp <= actualLVT && Temp.LVT.indexOf('0') != 0) {
-            	System.out.println("entrou no else if");
+            	//System.out.println("entrou no else if");
             	
                 //System.out.println("TIMESTAMP DA MSG: "+lessTimestamp+" GVT:"+App.NewDCB.getGVT()+"TempUID:"+Temp.uid);
 
                 // Marcador de tempo de inicio do tempo gasto para atualizaï¿½ï¿½o do display
                 //	Calendar hoje = Calendar.getInstance();
                 //	System.out.println("Mandando mensagem com timestamp "+Temp.LVT+" em: "+hoje.getTimeInMillis());
+            	
+            	if(Temp.uid.compareTo("444.3") == 0){	//esta situação ocorre quando o DCB "tenta" reproduzir uma mensagem que gerou rollback e ficou salva com
+            											//LVT-1, por exemplo: Mensagem gerou rollback no 600, fica salva como: 599.
+            											//O dcb chamava os métodos de rollbacks, que por algum motivo não chegavam a completar o rollback
+            											//então está sendo ignorado este rollback e removendo a mensagem da fila de atributos.
+            		if(actualLVT - Integer.parseInt(Temp.LVT) < 10 ){
+                		System.out.println("Nao vai chamar o protocol converter.");
+                		System.out.println("LVT Atual: "+actualLVT+"LVT temp: "+Temp.LVT);
+                		InputAttributeQueue.remove(Temp);
+                		
+                		break;
+                	}
+            	}
                 App.NewGateway.Redirect(getProtocolConverterID(Temp.uid));
                 if (App.FederateType.compareTo("notime") == 0) {
                     updateLVT(String.valueOf(lessTimestamp));
                 }
             } else {
-            	System.out.println("entrou no ELSE!");
-            	System.out.println("LVT do Temp: "+Temp.LVT+" Valor do Temp: "+Temp.Value+" e UID: "+Temp.uid);
+            	//System.out.println("entrou no ELSE!");
+            	//System.out.println("LVT do Temp: "+Temp.LVT+" Valor do Temp: "+Temp.Value+" e UID: "+Temp.uid);
                 //App.NewGateway.Redirect(getProtocolConverterID(Temp.uid));
                 break;
             }

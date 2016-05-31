@@ -74,17 +74,17 @@ public class Gateway6 {
                     Fed.rollback = true;
                     checkpoint = Fed.getCheckpoint(A0.LVT);
                     if ( checkpoint != null) {
-                    	System.out.println("antimsg:");
+                    	//System.out.println("antimsg:");
                         App.NewEDCB.antiMessageTrigger(checkpoint);
-                        System.out.println("chama o rollback:");
+                        //System.out.println("chama o rollback:");
                         Fed.rollback(checkpoint);
                         //Fed.setChatLVT(updateLVT(A0.LVT));
-                        System.out.println("update lvt:");
+                        //System.out.println("update lvt:");
                         Fed.setChatLVT(updateLVT(checkpoint));
-                        System.out.println("setreceivedText:");
+                        //System.out.println("setreceivedText:");
                         Fed.setReceivedText(A0.Value);
                         Fed.rollback = false;
-                        System.out.println("fim");
+                        //System.out.println("fim");
                     }
                 }
                 break;

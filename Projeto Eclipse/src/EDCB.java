@@ -14,11 +14,14 @@ public class EDCB {
     public Hashtable<String, Message> BufferSentMessages = new Hashtable<String, Message>();
     public boolean waiting = false;
     public boolean init = true;
-
+    
+    public int totalAntiMsg;
+    
     /////////////////////////////////////////////////////////////////////////////////////
     public EDCB(ApplicationDCB A) // construtor
     {
         App = A;
+        totalAntiMsg = 0;
         System.out.println("EDCB Inicializado...");
     }
 
@@ -115,6 +118,8 @@ public class EDCB {
         boolean attributeFound = false;
         String FederateId = null;
         String FederationId = null;
+        if(NewAttribute == null) return;
+        System.out.println("New Atribute: "+NewAttribute+" Size: "+NewAttribute.DestinationList.size());
         for (int x = 0; x < NewAttribute.DestinationList.size(); x++) {
             NewDestination = (Destination) NewAttribute.DestinationList.get(x);
             attributeFound = true;
@@ -285,43 +290,53 @@ public class EDCB {
         Set setDeLVTs = BufferSentMessages.keySet();
         Iterator<String> it = setDeLVTs.iterator();
         if (it.hasNext()) {
-        	System.out.println("eh loop 1");
+        	//System.out.println("eh loop 1");
             String aux = it.next();
             while (aux != null) {
-            	System.out.println("eh loop infinito aqui2");
+            	//System.out.println("eh loop infinito aqui2");
                 //Verifica quais mensagens que foram enviadas nesse tempo
                 //devem ser deletadas (e fazer rollback nos elementos)
                 if (Integer.valueOf(aux) > Integer.valueOf(checkpoint)) {
                     Message s = BufferSentMessages.get(aux);
-                    System.out.println("mensagem: " + s.Value + "do elemento 1." + s.FederateDestination + " lvt " + s.LVT);
+                    //System.out.println("mensagem: " + s.Value + "do elemento 1." + s.FederateDestination + " lvt " + s.LVT);
                     Integer aux1 = Integer.valueOf(s.LVT);
-                    System.out.println("aux1: "+aux1);
+                    //System.out.println("aux1: "+aux1);
                     if (aux1 > 0) {
                         --aux1;
                     }
                     //aux = aux1.toString();
                     //Dispara a anti-mensagem
                     this.AntiMessage("444." + s.FederateDestination, "", aux1.toString());
+                    
+                    totalAntiMsg++; //incrementa o contador de anti-mensagens para o caso de teste.
+                    
                     //aux1++;
                     //aux = aux1.toString();
                     
-                    System.out.println("msg: "+BufferSentMessages.get(aux));
+                    //System.out.println("msg: "+BufferSentMessages.get(aux));
                     
-                    Message hue = BufferSentMessages.remove(aux);
+                    BufferSentMessages.remove(aux);
                     
-                    if(hue == null){
-                    	System.out.println("nao removeu a msg porra nenhuma!");
+                    /*Message tes = BufferSentMessages.remove(aux);
+                    
+                    if(tes == null){
+                    	System.out.println("nao removeu a msg!"); //estava dando problema aqui, ele nunca removia a mensagem, usei o IF para ter certeza disso.
                     }else{
                     	System.out.println("MDS, removeu a msg!");
-                    }
+                    }*/
                     if (it.hasNext()) {
-                        aux = it.next();
-                        System.out.println("proximo aux:"+aux);
+                    	try{
+                    		aux = it.next();
+                    	}catch(Exception es){
+                    		return;
+                    	}
+                        
                     } else {
                         aux = null;
                     }
                 }
             }
+            System.out.println("Total de anti-mensagens: "+totalAntiMsg);
         }
     }
 }
