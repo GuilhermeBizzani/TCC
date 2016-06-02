@@ -65,8 +65,9 @@ public class Gateway8 {
                         Fed.rollback(checkpoint);
                         Fed.setChatLVT(updateLVT(checkpoint));
                         Fed.setReceivedText(A0.Value);
-                        Fed.rollback = false;
+                        
                     }
+                    Fed.rollback = false;
                 }
                 break;
             }

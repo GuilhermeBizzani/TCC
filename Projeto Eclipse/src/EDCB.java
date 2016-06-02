@@ -292,6 +292,7 @@ public class EDCB {
         if (it.hasNext()) {
         	//System.out.println("eh loop 1");
             String aux = it.next();
+            System.out.println("aux: "+aux);
             while (aux != null) {
             	//System.out.println("eh loop infinito aqui2");
                 //Verifica quais mensagens que foram enviadas nesse tempo
@@ -324,16 +325,18 @@ public class EDCB {
                     }else{
                     	System.out.println("MDS, removeu a msg!");
                     }*/
-                    if (it.hasNext()) {
-                    	try{
-                    		aux = it.next();
-                    	}catch(Exception es){
-                    		return;
-                    	}
-                        
-                    } else {
-                        aux = null;
-                    }
+                    
+                }
+                if (it.hasNext()) {
+                	
+                	try{
+                		aux = it.next();
+                	}catch(Exception es){
+                		return;
+                	}
+                    
+                } else {
+                    aux = null;
                 }
             }
             System.out.println("Total de anti-mensagens: "+totalAntiMsg);

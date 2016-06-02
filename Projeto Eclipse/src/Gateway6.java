@@ -62,7 +62,7 @@ public class Gateway6 {
             }
             //criacao:
             case 3: {
-            	System.out.println("entrou no case 3!");
+            	//System.out.println("entrou no case 3!");
             	Fed.setCheckpoint(App.NewEF.getLVT());
             	break;
             }
@@ -70,6 +70,7 @@ public class Gateway6 {
             case 444: {
                 A0 = App.NewEF.getAttributeReceived("444.3");
                 if (A0 != null) {
+                	//System.out.println("comeco do rollback no gateway:");
                     App.NewEF.AttributeRemove(A0);
                     Fed.rollback = true;
                     checkpoint = Fed.getCheckpoint(A0.LVT);
@@ -83,9 +84,10 @@ public class Gateway6 {
                         Fed.setChatLVT(updateLVT(checkpoint));
                         //System.out.println("setreceivedText:");
                         Fed.setReceivedText(A0.Value);
-                        Fed.rollback = false;
+                        
                         //System.out.println("fim");
                     }
+                    Fed.rollback = false;
                 }
                 break;
             }

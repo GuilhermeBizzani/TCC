@@ -78,6 +78,7 @@ public class Chat extends javax.swing.JFrame {
     
     public int totalCheckpointsInuteis; 
     
+    public int totalRollbacks;
     
     public int mensagensChat5[];
     
@@ -93,9 +94,9 @@ public class Chat extends javax.swing.JFrame {
         //inicia a variavel de total de tempo de rollback e total de checkpoints inuteis em 0
         totalTempoRollback = 0;
         totalCheckpointsInuteis = 0;
+        totalRollbacks = 0;
         
-        mensagensChat5 = new int[]{200, 300, 1200};
-
+        
         //Seta o LookAndFeel para o GTK++
         try {
             //UIManager.setLookAndFeel(new com.sun.java.swing.plaf.gtk.GTKLookAndFeel()); ALTERAÇÃO PARA FUNCIONAR NO WINDOWS.
@@ -570,7 +571,9 @@ public class Chat extends javax.swing.JFrame {
     	
     	totalTempoRollback += tempoRollback;
     	
-    	System.out.println("LVT Atual: "+chatLVT+", LVT do rollback: "+Momento+" Somatorio de rollbacks: "+totalTempoRollback);
+    	totalRollbacks++;
+    	
+    	System.out.println("Rollback "+totalRollbacks+", LVT Atual: "+chatLVT+", LVT do rollback: "+Momento+" Somatorio de rollbacks: "+totalTempoRollback);
     	
         PriorityQueue<Message> Lista = null;
         PriorityQueue<Message> ListaParaRemocao = new PriorityQueue<Message>(1, new Message());
@@ -822,10 +825,11 @@ public class Chat extends javax.swing.JFrame {
                 }
                 chatLVTaux = chatLVT;
                 if(chatLVT.compareTo("-1") == 0){
+                	System.out.println("Total de rollbacks realizados: "+totalRollbacks);
         	    	System.out.println("Total de tempo em rollback: "+totalTempoRollback);
         	    	System.out.println("Total de checkpoints inúteis: "+totalCheckpointsInuteis);
+        	    	System.out.println("Checkpoint Index: "+CkpIndex);
         	    	System.out.println("Finalizando Chat!");
-        	    	
         	    }
             }
         }
@@ -902,8 +906,11 @@ public class Chat extends javax.swing.JFrame {
                     	if(outerClass.chatLVT.compareTo("1000") == 0){
                             Gateway5.UpdateAttribute("1.7", "Msg chat 5 aos 1200"+"®"+outerClass.CkpIndex, "1200");
                         }
-                    	if(outerClass.chatLVT.compareTo("7000") == 0){
-                            Gateway5.UpdateAttribute("1.7", "Msg chat 5 aos 1500"+"®"+outerClass.CkpIndex, "7500");
+                    	if(outerClass.chatLVT.compareTo("3500") == 0){
+                            Gateway5.UpdateAttribute("1.6", "Msg chat 5 aos 4000"+"®"+outerClass.CkpIndex, "4000");
+                        }
+                    	if(outerClass.chatLVT.compareTo("13500") == 0){
+                            Gateway5.UpdateAttribute("1.7", "Msg chat 5 aos 13700"+"®"+outerClass.CkpIndex, "13700");
                         }
                         break;
                     case 6:
@@ -918,8 +925,8 @@ public class Chat extends javax.swing.JFrame {
                             cont++;
                         }
                         if(outerClass.chatLVT.compareTo("4000") == 0 && cont == 2){
-                        	System.out.println("Avancando LVT... de 4000 para 5500");
-                    		outerClass.chatLVT = Gateway6.updateLVT("3000");
+                        	System.out.println("Avancando LVT... de 4000 para 5000");
+                    		outerClass.chatLVT = Gateway6.updateLVT("5000");
                             cont++;
                         }
                         if(outerClass.chatLVT.compareTo("6400") ==0 && cont == 3){
@@ -930,9 +937,14 @@ public class Chat extends javax.swing.JFrame {
                             Gateway6.UpdateAttribute("1.8", "Mensagem chat 6 7700"+"®"+outerClass.CkpIndex, "7700");
                             cont++;
                     	}
-                        if(outerClass.chatLVT.compareTo("10000") == 0 && cont == 5){
-                        	System.out.println("Avancando LVT... de 10000 para 12100");
-                    		outerClass.chatLVT = Gateway6.updateLVT("12100");
+                    	if(outerClass.chatLVT.compareTo("7800") == 0 && cont == 5){
+                        	System.out.println("Avancando LVT... de 7800 para 8600");
+                    		outerClass.chatLVT = Gateway6.updateLVT("8600");
+                            cont++;
+                        }
+                        if(outerClass.chatLVT.compareTo("10000") == 0 && cont == 6){
+                        	System.out.println("Avancando LVT... de 10000 para 11600");
+                    		outerClass.chatLVT = Gateway6.updateLVT("11600");
                             cont++;
                         }
                         break;
@@ -946,9 +958,18 @@ public class Chat extends javax.swing.JFrame {
                             Gateway7.UpdateAttribute("1.6", "Mensagem chat 7 7200"+"®"+outerClass.CkpIndex, "7200");
                             cont++;
                     	}
-                    	if(outerClass.chatLVT.compareTo("10000") == 0 && cont == 2){
-                        	System.out.println("Avancando LVT... de 10000 para 12500");
-                    		outerClass.chatLVT = Gateway7.updateLVT("12500");
+                    	if(outerClass.chatLVT.compareTo("8000") ==0 && cont == 2){
+                            Gateway7.UpdateAttribute("1.6", "Mensagem chat 7 8300"+"®"+outerClass.CkpIndex, "8300");
+                            cont++;
+                    	}
+                    	if(outerClass.chatLVT.compareTo("8100") == 0 && cont == 3){
+                        	System.out.println("Avancando LVT... de 8100 para 8900");
+                    		outerClass.chatLVT = Gateway7.updateLVT("8900");
+                            cont++;
+                        }
+                    	if(outerClass.chatLVT.compareTo("10000") == 0 && cont == 4){
+                        	System.out.println("Avancando LVT... de 10000 para 10900");
+                    		outerClass.chatLVT = Gateway7.updateLVT("10900");
                             cont++;
                         }
                         break;
@@ -971,9 +992,13 @@ public class Chat extends javax.swing.JFrame {
                             Gateway8.UpdateAttribute("1.7", "Mensagem chat 8 7200"+"®"+outerClass.CkpIndex, "7200");
                             cont++;
                     	}
-                    	if(outerClass.chatLVT.compareTo("10000") == 0 && cont == 4){
-                        	System.out.println("Avancando LVT... de 10000 para 12500");
-                    		outerClass.chatLVT = Gateway8.updateLVT("12500");
+                    	if(outerClass.chatLVT.compareTo("8400") ==0 && cont == 4){
+                            Gateway8.UpdateAttribute("1.7", "Mensagem chat 8 8600"+"®"+outerClass.CkpIndex, "8600");
+                            cont++;
+                    	}
+                    	if(outerClass.chatLVT.compareTo("10000") == 0 && cont == 5){
+                        	System.out.println("Avancando LVT... de 10000 para 10100");
+                    		outerClass.chatLVT = Gateway8.updateLVT("10100");
                             cont++;
                         }
                         break;
