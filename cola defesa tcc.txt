@@ -1,0 +1,115 @@
+O meu trabalho é: título.
+
+--
+
+Vou começar com a contextualização, explicando o tema, problema e o objetivo que foram abordados durante o trabalho.
+
+Este trabalho está no contexto dos estudos relacionados a detecção de estados seguros em simulação distribuída para levar a criação de checkpoints nestes estados, reduzindo a criação de checkpoints inúteis.
+
+O problema é que as ferramentas de simulação distribuída necessitam de estratégias de detecção de estados seguros que não necessitem de muito processamento ou trocas de mensagens específicas na computação para levar a esta detecção, e que ainda assim sejam eficiente.
+
+O objetivo foi desenvolver um mecanismo que identifique estados seguros para a criação de checkpoints no DCB, a fim de reduzir a quantia de checkpoints inúteis e reduzir a probabilidade de efeito dominó.
+
+--
+
+Agora vou falar sobre os conceitos necessários para entender sobre o que são estados seguros, criação de checkpoints e também os rollbacks que podem ocorrer na simulação. Também falarei sobre o DCB, que foi utilizado para a implementação da abordagem desenvolvida.
+
+A simulação de sistemas se define basicamente no desenvolvimento de técnicas que permitem imitar o comportamento dos sistemas reais a partir da construção de modelos computacionais que os representam.
+(aqui neste exemplo de bar, o seu sistema real fica representado desta maneira no modelo computacional)
+
+A simulação abordada no trabalho se trata da simulação DISCRETA de eventos. Diferente da simulação Contínua, a simulação discreta representa cada evento apenas com o tempo de início e fim do evento, por exemplo, na simulação discreta o ato de "encher" o copo não precisa consumir processamento.
+
+Para otimizar o tempo de simulação, os modelos computacionais podem ser divididos em elementos para que estes possam ser processados de forma paralela ou distribuída. A sincronização na simulação distribuída deve garantir que os eventos disparados pelos elementos ocorram em seus devidos tempo de evento de forma ordenada nos elementos destinos.
+A ordem de execução de eventos internos de um elemento deve respeitar o tempo local de simulação (local virtual time)(LVT), e a ordem de execução de eventos externos (quando recebe ou envia uma mensagem) deve ser controlada por um tempo global, mantido em todos os elementos, chamado de global virtual time (GVT).
+
+--
+
+Ainda, os elementos podem se diferenciar na forma de avanço no tempo, podendo ter elementos síncronos e assíncronos. Os elementos síncronos devem sempre respeitar o GVT, não podendo o ultrapassar, já os elementos assíncronos podem avançar livremente no tempo.
+Neste exemplo, temos o elemento PL1 assíncrono que havia avançado até o tempo de simulação 15, porém o elemento síncrono PL0 (que estava acompanhando o GVT 5) enviou uma mensagem com tempo de evento 10, gerando uma violação de tempo no elemento PL1.
+
+-- 
+
+Uma violação de tempo leva o elemento assíncrono a realizar uma operação de Rollback, elementos síncronos não podem ter violação de tempo. Operação de rollback consiste em quando ocorre uma violação de tempo, o elemento deve retornar o tempo para um estado anteriormente salvo. Porém caso este retorno seja para um instante anterior ao envio de alguma mensagem, esta mensagem se torna uma mensagem órfã, obrigando o elemento a enviar uma anti-mensagem ao destinatário, para que este realize um rollback também.
+
+--
+
+Uma operação de rollback deve sempre deixar a simulação em um estado consistente. Um estado consistente é (dentre outras situações), quando não há nenhuma mensagem órfã presente na simulação. Caso ainda hajam mensagem órfãs, os elementos devem retroceder mais no tempo até atingir um estado consistente.
+
+--
+
+Estes estados salvos podem ser feitos utilizando checkpoints. Checkpoints são marcas em instantes de tempo passado do elemento contendo informações essenciais sobre seu estado naquele instante, para que quando necessite ser utilizado um checkpoint este possua as informações para restaurar o elemento na forma que estava.
+
+Checkpoints podem ser criados de três maneiras: Coordenados, não coordenados e induzidos a comunicação.
+
+Checkpoints coordenados procuram trocar informações específicas durante a simulação para detectar se o estado atual dos elementos é um estado consistente, este protocolo também pode utilizar de bloqueios em elementos, previnindo que estes avançem no tempo para forçar a obtenção de um estado consistente.
+
+--
+
+Checkpoints não coordenados são os mais simples de serem implementados, neles cada elemento possui total autonomia de quando criar seus checkpoints. Este protocolo pode levar ao efeito dominó e criação de checkpoints inúteis.
+
+--
+
+Checkpoints induzidos a comunicação procuram evitar o efeito dominó sem a necessidade de os checkpoints serem coordenados através de mensagens específicas. Neste protocolo, são acopladas informações nas mensagens de simulação, assim o destinatário pode verificar se a partir destas informações cria um checkpoint para garantir o progresso no caso de um rollback. 
+
+--
+
+O Distributed Co-Simulation Backbone, utilizado para a implementação da abordagem desenvolvida no trabalho, é uma arquitetura de co-simulação heterogênea que permite que os elementos de um modelo sejam distribuídos. O DCB realiza o gerenciamento do tempo e envio e recebimento de mensagens. Ele trabalha de uma forma que os elementos sejam independentes através do uso de um Gateway, utilizando o gateway para atualização do tempo e realizar o envio e recebimento de mensagens para o elemento.
+Antes deste trabalho, o DCB criava seus checkpoints de forma não coordenada, levando em consideração o tempo da simulação e a quantia de mensagens enviadas ou recebidas nos elementos.
+
+--
+
+A metodologia proposta no Projeto deste trabalho tinha sido dividida em 5 etapas, e elas foram cumpridas da seguinte forma:
+
+1: Procurando trabalhos específicos que continham problemas parecidos com este, para identificar quais as soluções que já haviam sido utilizadas para a detecção de estados seguros.
+2: Verificar se havia alguma precaução a ser tomada ao criar os checkpoints nos estados seguros identificados.
+3: Estudar a viabilidade das estratégias quanto às características internas do DCB, deveria ser possível a implementação desta solução no DCB. 
+4 e 5: A implementação foi realizada e será mostrada a seguir, assim como o estudo de caso para validação.
+
+--
+
+A implementação deste trabalho foi dividida em dois módulos, cada um destes módulos ficou responsável por criar checkpoints de maneiras diferentes, que juntos garantem o progresso ao realizar uma operações de rollback. O primeiro módulo que irei apresentar é o "Índice de Checkpoint", que foi baseado no trabalho de [Lin and Dow, 2001], o trabalho abordava a criação de checkpoints coordenados na computação móvel, então algumas modificações foram realizadas para que se adequasee às características do DCB. E o segundo módulo, "Predição de Mensagens" foi desenvolvido para criar checkpoints periódicos baseado na observação do comportamento dos modelos de simulação.
+
+--
+
+A principal, se não a única, modificação que foi feita para implementar esta abordagem no DCB foi a remoção da coordenação de checkpoints. Foi necessária pois o DCB trata todas as mensagens de uma mesma forma, até mensagens para a manutenção do GVT, por exemplo, o que causaria problemas enviar mensagens novas apenas para a coordenação na criação de checkpoints. Além de criar um overhead causado pelo processamento e envio dessas novas mensagens.
+Este método tem como objetivo evitar a ocorrência de Z-cycle durante a simulação.
+Z-cycles estão situados na abordagem Zig-Zag Path.
+~~explicar z-cycle com o exemplo~~
+
+--
+
+Então, a implementação deste método de seu da seguinte forma: criando uma variável em todos os elementos do modelo, que vai ser o índice de checkpoint. Este índice pode se assemelhar com um contador de checkpoint, porém nem sempre seu valor será igual a quantia de checkpoints presentes no elemento. 
+Todos os elementos possuem o valor, até o síncronos (que não criam checkpoints e tem o valor do índice sempre em zero). Este índice será acoplado em todas as mensagens de simulação enviadas pelos elementos. Para que ao receber uma mensagem de simulação, o elemento possa verifricar se há a possibilidade de ocorrência de Z-cycle.
+Para manter o índice, sempre ao criar um checkpoint, o valor é aumentado em 1, ao detectar um checkpoint inútil em um rollback o valor é reduzido em 1. E ao receber uma mensagem, e esta mensagem conter o índice maior do que o índice do elemento atual, é criado um checkpoint e o valor do índice é igualado ao valor acoplado na mensagem.
+~~dar o exemplo utilizando a imagem~~
+
+--
+
+O método de Predição de Mensagens procura encontrar estados seguros através da verificação da troca de mensagens já ocorrida entre os elementos. Este método consiste em criar checkpoints periódicos para garantir progresso na operação de rollback. Foi desenvolvido com base na observação de elementos de simulação, que tendem a se comunicar de forma contínua, tendo um padrão no intervalo de envio entre mensagens.
+
+~~
+
+
+--
+
+O estudo de caso realizado para validar o desenvolvimento feito no trabalho teve como objetivo botar em prática a criação de checkpoints e operações de rollback, para verificar o comportamento do sistema com a nova implementação. Este estudo de caso foi feito utilizando o modelo ChatDCB, desenvolvido por [Carvalho and Mello, 2015], onde cada elemento presente na simulação é um terminal de chat, e a troca de mensagens entre os elementos são mensagens enviadas no chat, portando não há operações internas do elemento, o que significa que não haveriam razões para avanços no tempo, mas também deixa livre caso algum elemento queira avançar, não tendo impedimentos.
+Foi criado um cenário controlado e determinístico, onde os envios de mensagens entre os elementos e os avanços no tempo serão os mesmos a cada nova execução. Ao total são enviadas 53 mensagens de simulação entre os elementos, para que sejam testadas várias situações de rollbacks.
+Este cenário será executado para ambas as abordagens de criação de checkpoint do DCB, a desenvolvida neste trabalho, e a presente anteriormente no DCB, para fins de comparação.
+
+--
+
+
+
+--
+
+Conclusão:
+A abordagem de criação de checkpoints induzido a comunicação foi a que mais se adequou com as características do DCB e produziu um resultado considerável, sem a necessidade de overhead de processamento para a detecção de estados seguros. Como vimos no teste realizado, situações de troca de mensagens intensa pode levar a criação de checkpoint inútil, e troca de mensagem com intervalo maior leva a retrocessos maiores por criar menos checkpoints.
+Única forma de evitar totalmente os checkpoints inúteis é com a coordenação de checkpoints, mesmo com essa abordagem procurando a diminuição desta ocorrência, a única forma de consegui-la é com a coordenação.
+A abordagem desenvolvida traz avanços para o DCB, agora criando checkpoints em instantes de tempo considerados seguros e tendo o rollback consistente.
+
+--
+
+Sugestões de trabalhos futuros para o DCB são a criação de um coletor de lixo, que seja capaz de detectar quando um checkpoint não será mais utilizado e o apagar, liberando mais espaço de armazenamento. Uma análise pode ser feita para verificar se é necessária a criação de checkpoints em todos os instantes seguros que esta abordagem encontra, podendo reduzir mais ainda a criação de checkpoints inúteis. Modificação na maneira como o DCB reliza a atualização do GVT nos elementos, deixando a troca de mensagens mais limpa e possibilitando que a acoplagem do índice de checkpoint seja feito nos módulos do DCB, e não do elemento. Ainda pode ser feito um estudo sobre os elementos síncronos do DCB, para que estes possuam um lookahead dinâmico, podendo realizar as simulações mais rápidamente.
+
+
+OBGD
